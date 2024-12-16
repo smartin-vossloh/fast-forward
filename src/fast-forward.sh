@@ -286,17 +286,36 @@ LOG=$(mktemp)
 
         if test "x$(jq -r .user.permissions.push < $PERM)" = xtrue
         then
-            echo -n "Fast forwarding \`$BASE_REF\` ($BASE_SHA) to"
-            echo " \`$PR_REF\` ($PR_SHA)."
+            if test "x$2" = "xmerge-commit"
+            then
+                echo -n "Merging \`$PR_REF\` ($PR_SHA) into \`$BASE_REF\` ($BASE_SHA)."
+                echo
+                echo '```shell'
+                (
+                    PS4='$ '
+                    set -x
+                    git checkout "${BASE_REF}"
+                    git merge --no-ff --into-name "${BASE_REF}" \
+                        -m "Merge pull request $(github_pull_request .number) from ${PR_REF} into ${BASE_REF}" \
+                        "${PR_SHA}"
+                    git push origin "${BASE_REF}"
+                )
+                echo '```'
+                echo 0 >$EXIT_CODE
 
-            echo '```shell'
-            (
-                PS4='$ '
-                set -x
-                git push origin "$PR_SHA:$BASE_REF"
-            )
-            echo '```'
-            echo 0 >$EXIT_CODE
+            else
+                echo -n "Fast forwarding \`$BASE_REF\` ($BASE_SHA) to"
+                echo " \`$PR_REF\` ($PR_SHA)."
+                echo
+                echo '```shell'
+                (
+                    PS4='$ '
+                    set -x
+                    git push origin "$PR_SHA:$BASE_REF"
+                )
+                echo '```'
+                echo 0 >$EXIT_CODE
+            fi
         else
             echo -n "Sorry @$(github_event .sender.login),"
             echo -n " it is possible to fast forward \`$BASE_REF\` ($BASE_SHA)"
