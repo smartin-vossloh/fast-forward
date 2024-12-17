@@ -15,7 +15,7 @@ jobs:
 
     steps:
       - name: Checking if fast forwarding is possible
-        uses: sequoia-pgp/fast-forward@v1
+        uses: smartin-vossloh/fast-forward@d717ec00dcef9dc77c17831bae91b57560873141
         with:
           merge: false
           # To reduce the workflow's verbosity, use 'on-error'
