@@ -19,6 +19,7 @@ jobs:
         uses: smartin-vossloh/fast-forward@98ae8ad90c87f766f410d24a74f11099757640ad
         with:
           merge: true
+          merge-strategy: merge-commit
           # To reduce the workflow's verbosity, use 'on-error'
           # to only post a comment when an error occurs, or 'never' to
           # never post a comment.  (In all cases the information is
