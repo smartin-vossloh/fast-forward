@@ -156,6 +156,8 @@ echo 1 >$EXIT_CODE
 
 LOG=$(mktemp)
 {
+    echo "Command: $0 $*" | tee -a $GITHUB_LOG
+
     echo "Triggered from $(github_event .comment.html_url .pull_request.html_url) by [@&ZeroWidthSpace;$GITHUB_ACTOR](https://github.com/$GITHUB_ACTOR)."
     echo
 
