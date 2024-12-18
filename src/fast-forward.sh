@@ -288,6 +288,18 @@ LOG=$(mktemp)
         then
             if test "x$2" = "xmerge-commit"
             then
+                # Retrieve the user's details (comment sender username and email) for merge-commit
+                # metadata.
+                USER_NAME="$(github_event .sender.login)"
+                USER_ID="$(github_event .sender.id)"
+                # Generate a valid github email address associated to the sender user.
+                # Email pattern:
+                #   {user.id}+{user.login}@users.noreply.github.com
+                #   (credit to: https://github.com/actions/checkout/blob/main/README.md)
+                USER_EMAIL="$(printf \
+                    "%d+fast-forward[bot]-on-behalf-of-%s@users.noreply.github.com" \
+                    "${USER_ID}" "${USER_NAME}")"
+
                 echo "Merging \`$PR_REF\` ($PR_SHA) into \`$BASE_REF\` ($BASE_SHA)."
 
                 if test "$(git rev-parse HEAD)" != "${BASE_SHA}"
@@ -299,7 +311,10 @@ LOG=$(mktemp)
                 (
                     PS4='$ '
                     set -x
-                    git merge --no-ff --into-name "${BASE_REF}" -m "${MESSAGE}" "${PR_SHA}"
+                    git \
+                        -c user.name="${USER_NAME}" \
+                        -c user.email="${USER_EMAIL}" \
+                        merge --no-ff --into-name "${BASE_REF}" -m "${MESSAGE}" "${PR_SHA}"
                     git push origin "${BASE_REF}"
                 )
                 echo '```'
