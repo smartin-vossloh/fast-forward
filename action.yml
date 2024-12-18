@@ -23,6 +23,33 @@ inputs:
       If merge-commit, a merge commit is created. Otherwise (the default),
       the branch is fast forwarded.
     default: fast-forward
+  merge-authorship:
+    description: >
+      The user to use for the merge commit in case of `merge-commit`.
+
+      If set to triggerer, the user who triggered the action is used.
+      If set to pr-author, the user who opened the pull request is used.
+      If set to fixed, the user specified by `merge-user-name` and
+      `merge-user-email` is used.
+      If set to none (default), no user is set.
+
+      This option is only required if `merge` is true and `merge-method`
+      is merge-commit.
+    default: none
+  merge-user-name:
+    description: >
+      The user to use for the merge commit.
+
+      If set, this user is used for the merge commit.  Otherwise, the
+      user who triggered the action is used.
+    default: ''
+  merge-user-email:
+    description: >
+      The user'email to use for the merge commit.
+
+      If set, this user is used for the merge commit.  Otherwise, the
+      user who triggered the action is used.
+    default: ''
   comment:
     description: >
       Whether to post a comment.
@@ -65,12 +92,15 @@ runs:
         export GITHUB_TOKEN=${{ inputs.github_token }}
         export DEBUG=${{ inputs.debug }}
         export COMMENT=${{ inputs.comment }}
+        export GIT_AUTHOR_NAME=${{ inputs.merge-user-name }}
+        export GIT_AUTHOR_EMAIL=${{ inputs.merge-user-email }}
 
         # github.action_path is set to $REPO.
         if test "x${{ inputs.merge }}" = xtrue
         then
             ${{ github.action_path }}/src/fast-forward.sh --merge \
-                "${{ inputs.merge-method }}"
+                "${{ inputs.merge-method }}" \
+                "${{ inputs.merge-authorship }}"
         else
             ${{ github.action_path }}/src/fast-forward.sh
         fi

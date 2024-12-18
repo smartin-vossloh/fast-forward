@@ -288,6 +288,35 @@ LOG=$(mktemp)
         then
             if test "x$2" = "xmerge-commit"
             then
+                # Define the user information for the merge commit.
+                case "x$3" in
+                xtriggerer)
+                    USER_NAME="$(github_event .comment.user.login)"
+                    USER_ID="$(github_event .comment.user.login)"
+                    EMAIL_ALIAS="+fast-forward-bot-triggered-by-$(github_event .comment.user.login)"
+                    USER_EMAIL="${USER_ID}${EMAIL_ALIAS}@users.noreply.github.com"
+                    ;;
+                xpr-author)
+                    USER_NAME="$(github_pull_request .user.login)"
+                    USER_ID="$(github_pull_request.user.id)"
+                    EMAIL_ALIAS="+fast-forward-bot-on-behalf-of-$(github_pull_request .user.login)"
+                    USER_EMAIL="${USER_ID}${EMAIL_ALIAS}@users.noreply.github.com"
+                    ;;
+                xfixed)
+                    USER_NAME="${GIT_AUTHOR_NAME}"
+                    USER_EMAIL="${GIT_AUTHOR_EMAIL}"
+                    ;;
+                x|*)  ;;
+                esac
+                # Set the user for the merge commit.
+                case "x$3" in
+                xtriggerer|xpr-author|xfixed)
+                    git config --global user.name "${USER_NAME}"
+                    git config --global user.email "${USER_EMAIL}"
+                    ;;
+                *)  ;;
+                esac
+
                 echo "Merging \`$PR_REF\` ($PR_SHA) into \`$BASE_REF\` ($BASE_SHA)."
 
                 if test "$(git rev-parse HEAD)" != "${BASE_SHA}"
