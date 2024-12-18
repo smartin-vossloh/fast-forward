@@ -23,6 +23,20 @@ inputs:
       If merge-commit, a merge commit is created. Otherwise (the default),
       the branch is fast forwarded.
     default: fast-forward
+  merge-user-name:
+    description: >
+      The user to use for the merge commit.
+
+      If set, this user is used for the merge commit.  Otherwise, the
+      user who triggered the action is used.
+    default: ''
+  merge-user-email:
+    description: >
+      The user'email to use for the merge commit.
+
+      If set, this user is used for the merge commit.  Otherwise, the
+      user who triggered the action is used.
+    default: ''
   comment:
     description: >
       Whether to post a comment.
@@ -74,6 +88,14 @@ runs:
                 MERGE_METHOD=merge-commit
             else
                 MERGE_METHOD=fast-forward
+            fi
+            if test "x${{ inputs.merge-user-name }}" != x
+            then
+                export GIT_AUTHOR_NAME="${{ inputs.merge-user-name }}"
+            fi
+            if test "x${{ inputs.merge-user-email }}" != x
+            then
+                export GIT_AUTHOR_EMAIL="${{ inputs.merge-user-email }}"
             fi
             ${{ github.action_path }}/src/fast-forward.sh --merge "${MERGE_METHOD}"
         else
