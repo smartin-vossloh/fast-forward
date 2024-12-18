@@ -295,7 +295,10 @@ LOG=$(mktemp)
                     PS4='$ '
                     set -x
                     git checkout "${BASE_REF}"
-                    git merge --no-ff --into-name "${BASE_REF}" \
+                    git \
+                        -c user.name="${GIT_AUTHOR_NAME}" \
+                        -c user.email="${GIT_AUTHOR_EMAIL}" \
+                        merge --no-ff --into-name "${BASE_REF}" \
                         -m "Merge pull request $(github_pull_request .number) from ${PR_REF} into ${BASE_REF}" \
                         "${PR_SHA}"
                     git push origin "${BASE_REF}"
