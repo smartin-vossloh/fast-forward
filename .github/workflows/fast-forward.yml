@@ -16,7 +16,7 @@ jobs:
 
     steps:
       - name: Fast forwarding
-        uses: smartin-vossloh/fast-forward@5eb705dd4d275489ecc54de3eb86b6972c8972b8
+        uses: smartin-vossloh/fast-forward@25e1fbeb9fd696736a34af3d5cb51cfabcf6ffdf
         with:
           merge: true
           merge-strategy: merge-commit
