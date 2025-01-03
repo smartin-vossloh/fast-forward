@@ -380,4 +380,10 @@ else
     echo "Not posting comment."
 fi
 
+echo "---" | tee -a $GITHUB_STEP_SUMMARY
+echo "Event:" | tee -a $GITHUB_STEP_SUMMARY
+cat $GITHUB_EVENT_PATH | tee -a $GITHUB_STEP_SUMMARY
+echo "PR url: ${PR_URL}" | tee -a $GITHUB_STEP_SUMMARY
+cat $GITHUB_PR | tee -a $GITHUB_STEP_SUMMARY
+
 exit $(cat $EXIT_CODE)
