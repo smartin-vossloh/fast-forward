@@ -181,6 +181,17 @@ is added to the pull request. The workflow is careful to :
   right before doing the merge;
 * generate a merge commit log including the PR's details.
 
+### Merge commit log
+
+Though this action aims at replacing the lack of rebase and merge `--no-ff` on
+GitHub, it does use the repository's pull request settings to generate the merge
+commit message. Therefore, it is recommended to set the repository's pull request
+settings to only use the "Allow merge commits" merge method, and select the
+"Default commit message" option of your choice.
+
+When merging a pull request, the action will check the merge commit message
+settings and generate the merge commit message accordingly.
+
 ## Disabling Comments
 
 If you prefer to disable comments, you can set the `comment` input
