@@ -303,14 +303,32 @@ LOG=$(mktemp)
                     git checkout "${BASE_REF}"
                 fi
                 MESSAGE=$(mktemp)
-                echo "Merge #$(github_pull_request .number): $(github_pull_request .title)" >$MESSAGE
-                echo >>$MESSAGE
-                echo "    $(github_pull_request .html_url)" >>$MESSAGE
-                echo >>$MESSAGE
-                echo "    from ${PR_REF} into ${BASE_REF}" >>$MESSAGE
-                echo >>$MESSAGE
-                echo "$(github_pull_request .body)" >>$MESSAGE
-
+                (
+                    if test "x$(github_pull_request .base.repo.merge_commit_title)" = "xPR_TITLE"
+                    then
+                        # Use the PR title as the merge commit message
+                        echo "Merge #$(github_pull_request .number): $(github_pull_request .title)"
+                        echo ""
+                        echo "    $(github_pull_request .html_url)"
+                        echo ""
+                        echo "    from ${PR_REF} into ${BASE_REF}"
+                        if test "x$(github_pull_request .base.repo.merge_commit_message)" = "xPR_BODY"
+                        then
+                            echo ""
+                            github_pull_request .body
+                        fi
+                    else
+                        # Default to the merge commit message
+                        echo "Merge pull request #$(github_pull_request .number) from ${PR_REF}"
+                        echo ""
+                        github_pull_request .title
+                    fi
+                ) > "${MESSAGE}"
+                if test $DEBUG -gt 0
+                then
+                    echo "Merge commit message:" >&2
+                    cat "${MESSAGE}" >&2
+                fi
                 echo '```shell'
                 (
                     PS4='$ '
