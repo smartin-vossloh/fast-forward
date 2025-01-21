@@ -373,6 +373,43 @@ LOG=$(mktemp)
             echo    " permission to push to this repository."
         fi
     else
+        MESSAGE=$(mktemp)
+        (
+            case "$(github_pull_request .base.repo.merge_commit_title):$(github_pull_request .base.repo.message)" in
+                PR_TITLE:PR_BODY)
+                    # title: PR_TITLE
+                    # body: PR_BODY
+                    echo "Merge #$(github_pull_request .number): $(github_pull_request .title)"
+                    echo ""
+                    echo "    $(github_pull_request .html_url)"
+                    echo ""
+                    echo "    from ${PR_REF} into ${BASE_REF}"
+                    echo ""
+                    github_pull_request .body
+                    ;;
+                PR_TITLE:*)
+                    # title: PR_TITLE
+                    # body: none (just the PR references)
+                    echo "Merge #$(github_pull_request .number): $(github_pull_request .title)"
+                    echo ""
+                    echo "    $(github_pull_request .html_url)"
+                    echo ""
+                    echo "    from ${PR_REF} into ${BASE_REF}"
+                    ;;
+                *)
+                    # default merge commit message
+                    echo "Merge pull request #$(github_pull_request .number) from ${PR_REF}"
+                    echo ""
+                    github_pull_request .title
+                    ;;
+            esac
+        ) > "${MESSAGE}"
+        if test $DEBUG -gt 0
+        then
+            echo "Merge commit message: ${MERGE_MSG_FORMAT}" >&2
+            echo "Merge commit message:" >&2
+            cat "${MESSAGE}" >&2
+        fi
         # We're just checking if fast forwarding is possible.
 
         echo -n "It is possible to fast forward \`$BASE_REF\` ($BASE_SHA)"
