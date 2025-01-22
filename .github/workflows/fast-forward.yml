@@ -20,7 +20,7 @@ jobs:
         with:
           merge: true
           merge-method: merge-commit
-          merge-commit-content: pr-title
+          merge-commit-content: pr-title-and-body
           # To reduce the workflow's verbosity, use 'on-error'
           # to only post a comment when an error occurs, or 'never' to
           # never post a comment.  (In all cases the information is
