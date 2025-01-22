@@ -303,27 +303,29 @@ LOG=$(mktemp)
                     git checkout "${BASE_REF}"
                 fi
 
-                COMMIT_TITLE="$(github_pull_request .base.repo.merge_commit_title)"
-                COMMIT_BODY="$(github_pull_request .base.repo.merge_commit_message)"
+                COMMIT_TITLE="$(github_event .issue.pull_request.base.repo.merge_commit_title)"
+                COMMIT_BODY="$(github_event .issue.pull_request.base.repo.merge_commit_message)"
                 MESSAGE=$(mktemp)
+                {
                 if grep -q 'PR_TITLE' <<<"${COMMIT_TITLE}"
                 then
-                    echo "Merge #$(github_pull_request .number): $(github_pull_request .title)" >> "${MESSAGE}"
-                    echo "" >> "${MESSAGE}"
-                    echo "* $(github_pull_request .html_url)" >> "${MESSAGE}"
-                    echo "* from ${PR_REF} into ${BASE_REF}" >> "${MESSAGE}"
+
+                    echo "Merge #$(github_pull_request .number): $(github_pull_request .title)"
+                    echo ""
+                    echo "* $(github_pull_request .html_url)"
+                    echo "* from ${PR_REF} into ${BASE_REF}"
                     if grep -q 'PR_BODY' <<<"${COMMIT_BODY}"
                     then
-                        echo "" >> "${MESSAGE}"
-                        github_pull_request .body >> "${MESSAGE}"
+                        echo ""
+                        github_pull_request .body
                     fi
                 else
                     # default merge commit message
-                    echo "Merge pull request #$(github_pull_request .number) from ${PR_REF}" >> "${MESSAGE}"
-                    echo "" >> "${MESSAGE}"
-                    github_pull_request .title >> "${MESSAGE}"
+                    echo "Merge pull request #$(github_pull_request .number) from ${PR_REF}"
+                    echo ""
+                    github_pull_request .title
                 fi
-
+                } > "${MESSAGE}"
                 echo '```shell'
                 (
                     PS4='$ '
